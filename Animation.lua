@@ -38,28 +38,28 @@ Animation.__index = Animation
 -- local animation = Animation.new(object, 1, {Position = UDim2.new(0, 0, 0, 0)})
 ---
 function Animation.new(object, duration, props)
-  local self = setmetatable({}, Animation)
+	local self = setmetatable({}, Animation)
 
-  self.object           = object
-  self.props            = props or {}
-  self.startValues      = {}
-  self.endValues        = {}
-  self.timeElapsed      = 0
-  self.duration         = duration
-  self.easingStyle      = Enum.EasingStyle.Linear
-  self.easingDirection  = Enum.EasingDirection.InOut
-  self.repeatCount      = 0
-  self.reverse          = false
-  self.delayTime        = 0
-  self.completed        = false
+	self.object 			    = object
+	self.props 				    = props or {}
+	self.startValues 		  = {}
+	self.endValues 			  = {}
+	self.timeElapsed 		  = 0
+	self.duration 			  = duration
+	self.easingStyle 		  = Enum.EasingStyle.Linear
+	self.easingDirection 	= Enum.EasingDirection.InOut
+	self.repeatCount 		  = 0
+	self.reverse 			    = false
+	self.delayTime			  = 0
+	self.onComplete			  = function() end
 
-  -- stores start values for each property to animate
-  for prop, endValue in pairs(self.props) do
-    self.startValues[prop] = self.object[prop]
-    self.endValues[prop] = endValue
-  end
+	-- stores start values for each property to animate
+	for prop, endValue in pairs(self.props) do
+		self.startValues[prop] = self.object[prop]
+		self.endValues[prop] = endValue
+	end
 
-  return self
+	return self
 end
 
 -- Setters
@@ -76,7 +76,7 @@ end
 -- @see https://create.roblox.com/docs/reference/engine/enums/EasingStyle
 ---
 function Animation:setEasingStyle(easing: Enum.EasingStyle)
-  self.easingStyle = easing
+	self.easingStyle = easing
 
 end
 
@@ -92,8 +92,8 @@ end
 -- @see https://create.roblox.com/docs/reference/engine/enums/EasingDirection
 ---
 function Animation:setEasingDirection(easing: Enum.EasingDirection)
-  self.easingDirection = easing
-	
+	self.easingDirection = easing
+
 end
 
 ---
@@ -106,8 +106,8 @@ end
 -- animation:setRepeatCount(1)
 ---
 function Animation:setRepeatCount(value: number)
-  self.repeatCount = value
-	
+	self.repeatCount = value
+
 end
 
 ---
@@ -120,8 +120,8 @@ end
 -- animation:setReverse(true)
 ---
 function Animation:setReverse(value)
-  self.reverse = value
-	
+	self.reverse = value
+
 end
 
 ---
@@ -134,7 +134,7 @@ end
 -- animation:setDelayTime(1)
 ---
 function Animation:setDelayTime(value)
-  self.delayTime = value
+	self.delayTime = value
 end
 
 ---
@@ -148,8 +148,8 @@ end
 -- 	print('Pepitos was here!')
 -- end)
 ---
-function Animation:onComplete(onComplete)
-  self.onComplete = onComplete
+function Animation:setOnComplete(onComplete)
+	self.onComplete = onComplete
 end
 
 
@@ -163,25 +163,26 @@ end
 ---
 function Animation:play()
 
-  local tweenInfo = TweenInfo.new(
-    self.duration,
-    self.easingStyle,
-    self.easingDirection,
-    self.repeatCount,
-    self.reverse,
-    self.delayTime
-  )
-  self.tween = TweenService:Create(self.object, tweenInfo, self.props)
+	local tweenInfo = TweenInfo.new(
+		self.duration,
+		self.easingStyle,
+		self.easingDirection,
+		self.repeatCount,
+		self.reverse,
+		self.delayTime
+	)
+	self.tween = TweenService:Create(self.object, tweenInfo, self.props)
 
 
-  self.tween.Completed:Connect(function()
-    if self.onComplete then
-      self.onComplete()
+	self.tween.Completed:Connect(function()
+		if self.onComplete then
+			self.onComplete()
+		end
 
-    end
+		self.tween:Destroy()
 
-  end)
-  self.tween:Play()
+	end)
+	self.tween:Play()
 
 end
 
@@ -208,44 +209,44 @@ end
 -- })
 ---
 function Animation:to(
-  object, 
-  props: { [string]: any }, 
-  config: { 
-    duration: number, 
-    easingStyle: Enum.EasingStyle,
-    easingDirection: Enum.EasingDirection,
-    repeatCount: number,
-    reverse: boolean,
-    delayTime: number,
-    yoyo: boolean,
-    onComplete: () -> void  
-  }
+	object, 
+	props: { [string]: any }, 
+	config: { 
+		duration: number, 
+		easingStyle: Enum.EasingStyle,
+		easingDirection: Enum.EasingDirection,
+		repeatCount: number,
+		reverse: boolean,
+		delayTime: number,
+		yoyo: boolean,
+		onComplete: () -> void  
+	}
 )
 
-  local duration        = config.duration or 1
-  local easingStyle     = config.easingStyle or Enum.EasingStyle.Linear
-  local easingDirection = config.easingDirection or Enum.EasingDirection.InOut
-  local repeatCount     = config.repeatCount or 0
-  local reverse         = config.reverse or false
-  local delayTime       = config.delayTime or 0
-  local yoyo            = config.yoyo or false
-  local onComplete      = config.onComplete
+	local duration			    = config and config.duration or 1
+	local easingStyle		    = config and config.easingStyle or Enum.EasingStyle.Linear
+	local easingDirection 	= config and config.easingDirection or Enum.EasingDirection.InOut
+	local repeatCount		    = config and config.repeatCount or 0
+	local reverse			      = config and config.reverse or false
+	local delayTime			    = config and config.delayTime or 0
+	local yoyo				      = config and config.yoyo or false
+	local onComplete		    = config and config.onComplete
 
-  -- 
-  local animation = Animation.new(object, duration, props)
+	-- 
+	local animation = Animation.new(object, duration, props)
 
-  animation:setEasingStyle(easingStyle)
-  animation:setEasingDirection(easingDirection)
-  animation:setDelayTime(delayTime)
+	animation:setEasingStyle(easingStyle)
+	animation:setEasingDirection(easingDirection)
+	animation:setDelayTime(delayTime)
 
-  -- If yoyo is true then repeatCount and reverse are going to be -1 and true
-  animation:setRepeatCount(yoyo and -1 or repeatCount)
-  animation:setReverse(yoyo and true or reverse)
+	-- If yoyo is true then repeatCount and reverse are going to be -1 and true
+	animation:setRepeatCount(yoyo and -1 or repeatCount)
+	animation:setReverse(yoyo and true or reverse)
 
-  animation:onComplete(onComplete)
-  animation:play()
+	animation:setOnComplete(onComplete)
+	animation:play()
 
-  return animation
+	return animation
 
 end
 
@@ -273,52 +274,52 @@ end
 -- })
 ---
 function Animation:fromTo(
-  object, 
-  fromProps: { [string]: any }, 
-  toProps: { [string]: any },
-  config: { 
-    duration: number, 
-    easingStyle: Enum.EasingStyle,
-    easingDirection: Enum.EasingDirection,
-    repeatCount: number,
-    reverse: boolean,
-    delayTime: number,
-    yoyo: boolean,
-    onComplete: () -> void  
-  }
+	object, 
+	fromProps: { [string]: any }, 
+	toProps: { [string]: any },
+	config: { 
+		duration: number, 
+		easingStyle: Enum.EasingStyle,
+		easingDirection: Enum.EasingDirection,
+		repeatCount: number,
+		reverse: boolean,
+		delayTime: number,
+		yoyo: boolean,
+		onComplete: () -> void  
+	}
 )
 
-  local duration        = config.duration or 1
-  local easingStyle     = config.easingStyle or Enum.EasingStyle.Linear
-  local easingDirection = config.easingDirection or Enum.EasingDirection.InOut
-  local repeatCount     = config.repeatCount or 0
-  local reverse         = config.reverse or false
-  local delayTime       = config.delayTime or 0
-  local yoyo            = config.yoyo or false
-  local onComplete      = config.onComplete
+	local duration			    = config.duration or 1
+	local easingStyle		    = config.easingStyle or Enum.EasingStyle.Linear
+	local easingDirection 	= config.easingDirection or Enum.EasingDirection.InOut
+	local repeatCount		    = config.repeatCount or 0
+	local reverse			      = config.reverse or false
+	local delayTime			    = config.delayTime or 0
+	local yoyo				      = config.yoyo or false
+	local onComplete		    = config.onComplete
 
-  -- 
-  local animation = Animation.new(object, duration, toProps)
+	-- 
+	local animation = Animation.new(object, duration, toProps)
 
-  animation:setEasingStyle(easingStyle)
-  animation:setEasingDirection(easingDirection)
-  animation:setDelayTime(delayTime)
+	animation:setEasingStyle(easingStyle)
+	animation:setEasingDirection(easingDirection)
+	animation:setDelayTime(delayTime)
 
-  -- If yoyo is true then repeatCount and reverse are going to be -1 and true
-  animation:setRepeatCount(yoyo and -1 or repeatCount)
-  animation:setReverse(yoyo and true or reverse)
+	-- If yoyo is true then repeatCount and reverse are going to be -1 and true
+	animation:setRepeatCount(yoyo and -1 or repeatCount)
+	animation:setReverse(yoyo and true or reverse)
 
-  animation:onComplete(onComplete)
+	animation:setOnComplete(onComplete)
 
-  -- Set initial values to the object
-  for prop, startValue in pairs(fromProps) do
-    animation.object[prop] = startValue
+	-- Set initial values to the object
+	for prop, startValue in pairs(fromProps) do
+		animation.object[prop] = startValue
 
-  end
+	end
 
-  animation:play()
+	animation:play()
 
-  return animation
+	return animation
 
 end
 
